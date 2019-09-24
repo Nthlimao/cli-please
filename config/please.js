@@ -28,7 +28,9 @@ switch(func) {
                                 if (options === '-c') {
                                     fs.stat(`app/controllers/${name}Controller.js`, function(err, stat){
                                         if(err !== null) {
-                                            fs.writeFile(`app/controllers/${name}Controller.js`, 'New Controller', function (err){});
+                                            fs.writeFile(`app/controllers/${name}Controller.js`, 'New Controller', function (err){
+                                                
+                                            });
                                         }
                                     });
                                 }
