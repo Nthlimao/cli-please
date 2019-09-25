@@ -1,5 +1,6 @@
 #! /usr/bin/env node
 // IMPORTS
+const app = require('./app');
 const make = require('./make');
 const fs = require('fs');
 
@@ -11,6 +12,13 @@ const commands = command.split(':');
 const [ func , type ] = commands;
 
 switch(func) {
+    case 'app':
+        switch(type) {
+            case 'init':
+                app.structureDefault();
+            break;
+        }
+    break;
     case 'make':
         switch(type) {
             case 'controller':
@@ -20,8 +28,6 @@ switch(func) {
                 make.model(name, options);
             break;
         }
-    break;
-    case 'app':
     break;
     default:
         console.log('QUE TE PASSAS NINHO');

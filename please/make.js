@@ -1,41 +1,37 @@
 // IMPORTS
 const controller = require('./default/controller');
-const fs = require('fs');
+const model = require('./default/model');
+const file = require('./file');
 
 
-module.exports = {
-    controller(name, options = null) {
-        fs.stat(`app/controllers/${name}.js`, function(err, stat){
-            if(err !== null) {
-                if(options === '-crud') {
-                    fs.writeFile(`app/controllers/${name}.js`, controller.controllerCRUD() , function (err){});
-                } else {
-                    fs.writeFile(`app/controllers/${name}.js`, controller.default() , function (err){});
-                }
-            }
-        });
+const Make = {
+    async controller(name, options = null, model = null) {
+        const pathFile = `app/controllers/${name}.js`;
+        
+        if (!(await file.exists(pathFile))) {
+            let contentType = controller.default();
+
+            if(options === '-crud' && !model) 
+                contentType = controller.controllerCRUD();
+            
+            if(options === '-crud' && model) 
+                contentType = controller.modelCRUD(model);            
+
+            file.write(pathFile, contentType);
+        }
     },
-    model(name, options = null) {
-        fs.stat(`app/models/${name}.js`, function(err, stat){
-            if(err !== null) {
-                fs.writeFile(`app/models/${name}.js`, 'New Model', function (err){
-                    if(err === null) {
-                        if (options === '-c') {
-                            fs.stat(`app/controllers/${name}Controller.js`, function(err, stat){
-                                if(err !== null) {
-                                    fs.writeFile(`app/controllers/${name}Controller.js`, controller.default(), function (err){});
-                                }
-                            });
-                        } else if (options === '-crud') {
-                            fs.stat(`app/controllers/${name}Controller.js`, function(err, stat){
-                                if(err !== null) {
-                                    fs.writeFile(`app/controllers/${name}Controller.js`, controller.modelCRUD(name), function (err){});
-                                }
-                            });
-                        }
-                    }
-                });
-            }
-        });
+    async model(name, options = null) {
+        const pathFile = `app/models/${name}.js`;
+
+        if(!(await file.exists(pathFile))) {
+            file.write(pathFile, model.default(name));
+
+            if (options === '-c') 
+                await Make.controller(`${name}Controller`);
+            else if (options === '-crud')
+                await Make.controller(`${name}Controller`, options, name);
+        }
     }
 };
+
+module.exports = Make;
